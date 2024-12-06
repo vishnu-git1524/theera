@@ -14,9 +14,10 @@ export default function Home() {
       {/* Main content */}
       <div className="min-h-screen flex flex-col items-center pt-56 relative z-[10]">
         {/* Heading */}
-        <h1 className="bg-gradient-to-r text-center from-gray-600 font-bold text-6xl to-gray-900 inline-block text-transparent bg-clip-text">
+        <h1 className="bg-gradient-to-r text-center from-gray-600 font-bold text-4xl sm:text-5xl md:text-6xl to-gray-900 inline-block text-transparent bg-clip-text px-4">
           Revolutionizing Developer Collaboration
         </h1>
+
 
         <div className="h-4"></div>
 
