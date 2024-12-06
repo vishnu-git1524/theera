@@ -150,7 +150,7 @@ export default function Home() {
           </div>
           <Separator className="w-full max-w-xs border-t border-gray-300" />
           <div className="text-sm text-gray-500">
-            Theera 💞 <span className="font-semibold">ver 22.04</span>
+            Theera 💞 <span className="font-semibold">V 22.04</span>
           </div>
         </div>
       </div>
