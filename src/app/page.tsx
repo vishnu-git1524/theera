@@ -1,53 +1,159 @@
+import React from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
-import { LatestPost } from "@/app/_components/post";
-import { api, HydrateClient } from "@/trpc/server";
-
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-
-  void api.post.getLatest.prefetch();
-
+export default function Home() {
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-          </div>
+    <>
+      {/* Background grid pattern */}
+      <div className="absolute z-[-1] bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_80%)]"></div>
 
-          <LatestPost />
+      {/* Main content */}
+      <div className="min-h-screen flex flex-col items-center pt-56 relative z-[10]">
+        {/* Heading */}
+        <h1 className="bg-gradient-to-r text-center from-gray-600 font-bold text-6xl to-gray-900 inline-block text-transparent bg-clip-text">
+          Revolutionizing Developer Collaboration
+        </h1>
+
+        <div className="h-4"></div>
+
+        <h2 className="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-200 text-center font-bold text-2xl inline-block text-transparent bg-clip-text">
+          Welcome to TheerAa
+          <span>💗</span>
+        </h2>
+
+
+        <div className="h-4"></div>
+
+        {/* Subheading */}
+        <p className="text-xl mb-8 text-gray-600 max-w-xl text-center">
+          Theera was born out of a desire to simplify and enhance developer collaboration. By addressing common pain points in team-based coding projects, we’ve created a platform that fosters efficiency, transparency, and streamlined workflows.
+        </p>
+
+        {/* Buttons */}
+        <div className="space-x-4">
+          <Button>
+            <Link href="/dashboard">Get Started</Link>
+          </Button>
+          <Link href="dashboard">
+            <Button variant="outline">Learn More</Button>
+          </Link>
         </div>
-      </main>
-    </HydrateClient>
+
+        {/* Features Section */}
+
+        {/* Features Section */}
+        <div className="mt-12 max-w-5xl mx-auto">
+          <h2 className="text-2xl font-semibold mb-4 text-center">What Theera Offers 🧑🏻‍💻</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Card A */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">A</span>utomated Code Documentation
+              </h3>
+              <p className="text-gray-600">
+                Save time and reduce onboarding friction with dynamically generated, comprehensive documentation that captures your codebase’s structure and intent.
+              </p>
+            </Card>
+            {/* Card R */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">R</span>eal-Time Meeting Insights
+              </h3>
+              <p className="text-gray-600">
+                Access real-time contextual meeting notes and searchable insights, ensuring critical information is always at your fingertips.
+              </p>
+            </Card>
+            {/* Card S */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">S</span>eamless Team Collaboration
+              </h3>
+              <p className="text-gray-600">
+                Collaborate effortlessly with tools that integrate documentation, meeting notes, and code insights into a unified platform.
+              </p>
+            </Card>
+            {/* Card H */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">H</span>ighly Secure Integration
+              </h3>
+              <p className="text-gray-600">
+                Ensure your data stays protected with enterprise-grade encryption and customizable access controls for secure integrations.
+              </p>
+            </Card>
+            {/* Card I */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">I</span>ntelligent Code Search
+              </h3>
+              <p className="text-gray-600">
+                Leverage context-aware search tools to locate specific functions, variables, or files instantly—no matter how large your repository grows.
+              </p>
+            </Card>
+            {/* Card Y */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">Y</span>our Personalized Dashboard
+              </h3>
+              <p className="text-gray-600">
+                Get an overview of your tasks, meeting notes, and team progress in a single, customizable dashboard tailored to your workflow.
+              </p>
+            </Card>
+            {/* Card A */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-indigo-600">A</span>I-Powered Commit Summaries
+              </h3>
+              <p className="text-gray-600">
+                Stay informed with concise, AI-generated commit summaries that keep everyone on the same page without reading lengthy logs.
+              </p>
+            </Card>
+            {/* Card 💘 */}
+            <Card className="p-6">
+              <h3 className="text-xl font-semibold mb-2">
+                <span className="font-extrabold text-pink-600">💘</span> Tailored Team Insights
+              </h3>
+              <p className="text-gray-600">
+                Strengthen team dynamics with personalized insights and actionable recommendations, fostering collaboration and productivity.
+              </p>
+            </Card>
+          </div>
+        </div>
+
+        {/* Demo Image */}
+        <Image
+          src="/bg.png"
+          alt="theera"
+          width={1000}
+          height={1000}
+          className="my-12 border rounded-md transition-all hover:shadow-2xl hover:scale-[102%] shadow-xl w-[70vw] h-auto"
+        />
+
+        {/* Footer Links */}
+        <div className="flex flex-col items-center space-y-6 mb-10">
+          <div className="flex items-center space-x-4">
+            <Link href="/sign-in">
+              <Button variant="default" className="px-6 py-2">
+                Sign In
+              </Button>
+            </Link>
+            <Link href="/sign-up">
+              <Button variant="outline" className="px-6 py-2">
+                Sign Up
+              </Button>
+            </Link>
+          </div>
+          <Separator className="w-full max-w-xs border-t border-gray-300" />
+          <div className="text-sm text-gray-500">
+            Theera 💞 <span className="font-semibold">ver 22.04</span>
+          </div>
+        </div>
+      </div>
+
+    </>
   );
 }

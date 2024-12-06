@@ -3,18 +3,104 @@
 
 generator client {
     provider = "prisma-client-js"
+    previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
+    extensions = [vector]
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
+model User{
+    id       String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    firstName String?
+    lastName  String?
+    emailAddress     String   @unique
+    imageUrl String?
+    credits Int @default(150)
+
+    UserToProject UserToProject[]
+
+    Question Question[]
+}
+
+model Project{
+    id String @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([name])
+    name String
+    githubUrl String
+
+    deletedAt DateTime?
+
+    UserToProject UserToProject[]
+
+    Commit Commit[]
+
+    SourceCodeEmbedding SourceCodeEmbedding[]
+
+    Question Question[]
+}
+
+model UserToProject{
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String
+    projectId String
+
+    user User @relation(fields: [userId], references: [id])
+    project Project @relation(fields: [projectId], references: [id])
+
+    @@unique([userId, projectId])
+
+}
+
+model Commit{
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    projectId String
+    project Project @relation(fields: [projectId], references: [id])
+    commitHash String
+    commitMessage String
+    commitAuthorName String
+    commitAuthorAvatar String
+    commitDate DateTime
+    summary String
+}
+
+model SourceCodeEmbedding{
+    id String @id @default(cuid())
+
+    summaryEmbedding Unsupported("vector(768)")?
+    sourceCode String
+    fileName String
+    summary String
+
+    projectId String
+    project Project @relation(fields: [projectId], references: [id])
+
+
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  question      String
+  answer        String
+  filesReferences Json?
+
+  projectId     String
+  project       Project @relation(fields: [projectId], references: [id])
+
+  userId        String
+  user          User    @relation(fields: [userId], references: [id])
 }
