@@ -22,7 +22,7 @@ export default function Home() {
         <div className="h-4"></div>
 
         <h2 className="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-200 text-center font-bold text-2xl inline-block text-transparent bg-clip-text">
-          Welcome to TheerAa
+          Welcome to Theera
           <span>💗</span>
         </h2>
 
