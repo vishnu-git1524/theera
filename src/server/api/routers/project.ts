@@ -150,6 +150,79 @@ export const projectRouter = createTRPCRouter({
         });
     }),
 
+    deleteProject: protectedProcedure.input(
+        z.object({
+            projectId: z.string(),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const { projectId } = input;
+
+        // Ensure that the user owns this project
+        const project = await ctx.db.project.findUnique({
+            where: { id: projectId },
+        });
+
+        if (!project) {
+            throw new TRPCError({
+                code: "FORBIDDEN",
+                message: "You are not authorized to delete this project.",
+            });
+        }
+
+        try {
+            await ctx.db.$transaction(async (trx) => {
+                // Delete commits related to the project
+                await trx.commit.deleteMany({
+                    where: {
+                        projectId: input.projectId,
+                    },
+                });
+
+
+                await trx.note.deleteMany({
+                    where: {
+                        projectId: input.projectId,
+                    }
+                });
+
+                await trx.question.deleteMany({
+                    where: {
+                        projectId: input.projectId
+                    }
+                })
+
+                // Delete sourcecodeembeddings related to the project
+                await trx.sourceCodeEmbedding.deleteMany({
+                    where: {
+                        projectId: input.projectId,
+                    },
+                });
+
+                // Delete the association in UserToProject
+                await trx.userToProject.deleteMany({
+                    where: {
+                        projectId: input.projectId,
+                    },
+                });
+
+                // Finally, delete the project itself
+                await trx.project.delete({
+                    where: { id: input.projectId },
+                });
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Transaction failed: ", error);
+            throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to delete project and related data.",
+            });
+        }
+    }),
+
+
+
 
     // Query to fetch archived projects
     getArchivedProjects: protectedProcedure.query(async ({ ctx }) => {
@@ -204,6 +277,76 @@ export const projectRouter = createTRPCRouter({
                 }
             })
             return { filecount, userCredits: userCredits?.credits || 0 }
-        })
+        }),
 
+    getNotes: protectedProcedure.input(
+        z.object({
+            projectId: z.string(),
+        })
+    ).query(async ({ ctx, input }) => {
+        return await ctx.db.note.findMany({
+            where: {
+                projectId: input.projectId,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }),
+
+    // Add a new note
+    addNote: protectedProcedure.input(
+        z.object({
+            projectId: z.string(),
+            content: z.string().min(1, 'Note content cannot be empty.'),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        return await ctx.db.note.create({
+            data: {
+                projectId: input.projectId,
+                content: input.content,
+                userId: ctx.user.userId!,
+            },
+        });
+    }),
+
+    // Edit an existing note
+    updateNote: protectedProcedure.input(
+        z.object({
+            noteId: z.string(),
+            content: z.string().min(1, 'Note content cannot be empty.'),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const note = await ctx.db.note.findUnique({
+            where: { id: input.noteId },
+        });
+
+        if (!note || note.userId !== ctx.user.userId!) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You are not authorized to edit this note.' });
+        }
+
+        return await ctx.db.note.update({
+            where: { id: input.noteId },
+            data: { content: input.content },
+        });
+    }),
+
+    // Delete a note
+    deleteNote: protectedProcedure.input(
+        z.object({
+            noteId: z.string(),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const note = await ctx.db.note.findUnique({
+            where: { id: input.noteId },
+        });
+
+        if (!note || note.userId !== ctx.user.userId!) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You are not authorized to delete this note.' });
+        }
+
+        return await ctx.db.note.delete({
+            where: { id: input.noteId },
+        });
+    }),
 })

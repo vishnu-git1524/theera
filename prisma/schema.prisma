@@ -25,6 +25,8 @@ model User{
     UserToProject UserToProject[]
 
     Question Question[]
+
+    Note Note[]
 }
 
 model Project{
@@ -44,6 +46,8 @@ model Project{
     SourceCodeEmbedding SourceCodeEmbedding[]
 
     Question Question[]
+
+    Note Note[]
 }
 
 model UserToProject{
@@ -103,4 +107,18 @@ model Question {
 
   userId        String
   user          User    @relation(fields: [userId], references: [id])
+}
+
+model Note {
+    id              String   @id @default(cuid())
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    content         String
+
+    projectId       String
+    project         Project @relation(fields: [projectId], references: [id])
+
+    userId          String
+    user            User    @relation(fields: [userId], references: [id])
 }

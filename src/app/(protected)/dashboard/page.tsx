@@ -8,9 +8,11 @@ import CommitLog from './commit-log'
 import AskQuestionCard from './ask-question'
 import ArchiveButton from './archive-button'
 // import InviteButton from './InviteButton'
-import TeamMembers from './TeamMembers'
+// import TeamMembers from './TeamMembers'
 import dynamic from 'next/dynamic'
-const InviteButton = dynamic(()=> import('./InviteButton'), {ssr: false})
+import { toast } from 'sonner'
+const InviteButton = dynamic(() => import('./InviteButton'), { ssr: false })
+const TeamMembers = dynamic(() => import('./TeamMembers'), { ssr: false })
 
 const Dashboard = () => {
   const { project, projectId, projects } = useProject()
@@ -37,7 +39,7 @@ const Dashboard = () => {
         </div>
         <div className="h-4"></div>
         <div className="flex items-center gap-4">
-          <TeamMembers/>
+          <TeamMembers />
           <InviteButton projectId={projectId} disabled={!isProjectSelected} />
           <ArchiveButton disabled={!isProjectSelected} />
         </div>

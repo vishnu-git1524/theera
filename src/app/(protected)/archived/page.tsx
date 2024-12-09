@@ -23,12 +23,13 @@ const Archived = () => {
         },
     });
 
-    // Update the list of archived projects when the data changes
     useEffect(() => {
-        if (archivedProjectsData) {
-            setArchivedProjects(archivedProjectsData);
+        // Ensure this only runs on the client
+        if (typeof window !== "undefined" && archivedProjectsData) {
+          setArchivedProjects(archivedProjectsData);
         }
-    }, [archivedProjectsData]);
+      }, [archivedProjectsData]);
+      
 
     // Loading state
     if (isLoading) {
