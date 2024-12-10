@@ -105,7 +105,7 @@ const NotesPage = () => {
         <Button onClick={() => setIsDialogOpen(true)}>Add New Note</Button>
       </header>
 
-      {isLoading ? (
+      {isLoading && typeof window !== 'undefined' ? (
         <div className="flex justify-center items-center h-48">
           <div className="spinner border-primary" />
         </div>
