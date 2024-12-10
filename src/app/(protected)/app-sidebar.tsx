@@ -109,7 +109,7 @@ export function AppSideBar() {
         <Sidebar collapsible="icon" variant="floating">
             <SidebarHeader>
                 <div className="flex items-center gap-4">
-                    <Image src='/logo.png' alt="logo" width={40} height={40} />
+                    <Image src='/logo.svg' alt="logo" width={40} height={40} />
                     {open && (
                         <h1 className="text-xl font-bold text-primary/80">Theera</h1>
                     )}

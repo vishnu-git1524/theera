@@ -47,6 +47,7 @@ const NotesPage = () => {
     toast.promise(
       addNote.mutateAsync({ projectId, content: newNoteContent }).then(() => {
         setNewNoteContent('');
+        setIsDialogOpen(false);
         refetch();
       }),
       {

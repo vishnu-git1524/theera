@@ -7,7 +7,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import useRefetch from '../../../hooks/use-refetch'
-import { redirect } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { Info } from 'lucide-react'
 
 type FormInput = {
@@ -21,36 +21,49 @@ const CreatePage = () => {
     const createProject = api.project.createProject.useMutation()
     const checkCredits = api.project.checkCredits.useMutation()
     const refetch = useRefetch()
+    const router = useRouter(); // Use Next.js router for navigation
 
-    function onSubmit(data: FormInput) {
+    async function onSubmit(data: FormInput) {
         if (!!checkCredits.data) {
-            // Use toast.promise for better feedback UX
             toast.promise(
-                createProject.mutateAsync({
-                    githubUrl: data.repoUrl,
-                    name: data.projectName,
-                    githubToken: data.githubToken,
-                }),
+                createProject
+                    .mutateAsync({
+                        githubUrl: data.repoUrl,
+                        name: data.projectName,
+                        githubToken: data.githubToken,
+                    })
+                    .then(() => {
+                        refetch(); // Trigger refetch after successful creation
+                        reset(); // Reset the form
+                        router.push('/dashboard'); // Navigate to dashboard
+                    }),
                 {
                     loading: 'Creating project...',
-                    success: () => {
-                        refetch() // Trigger refetch after successful creation
-                        reset()   // Reset the form
-                        redirect('/dashboard')
-                        return 'Project created successfully!'
+                    success: 'Project created successfully!',
+                    error: (err) => {
+                        if (err instanceof Error) {
+                            return err.message; // Use backend-provided error message
+                        }
+                        return 'Failed to create project. Please try again.';
                     },
-                    error: 'Failed to create project. Please try again.',
                 }
-            )
+            );
         } else {
-            checkCredits.mutate({
-                githubToken: data.githubToken,
-                githubUrl: data.repoUrl
-
-            })
+            try {
+                await checkCredits.mutateAsync({
+                    githubToken: data.githubToken,
+                    githubUrl: data.repoUrl,
+                });
+            } catch (error) {
+                toast.error(
+                    error instanceof Error
+                        ? error.message
+                        : 'Failed to check credits. Please try again.'
+                );
+            }
         }
     }
-
+    
     const hasEnoughCredits = checkCredits?.data?.userCredits ? checkCredits.data.filecount <= checkCredits.data.userCredits : true
     return (
         <div className='flex items-center gap-12 h-full justify-center'>

@@ -6,6 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { clerkClient } from '@clerk/clerk-sdk-node';
 
 export const projectRouter = createTRPCRouter({
+
     createProject: protectedProcedure.input(
         z.object({
             name: z.string(),
