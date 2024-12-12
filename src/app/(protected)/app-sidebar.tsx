@@ -27,6 +27,11 @@ const items = [
         icon: Bot
     },
     {
+        title: "Meetings",
+        url: '/meetings',
+        icon: Presentation
+    },
+    {
         title: "Notes",
         url: '/notes',
         icon: NotebookPen
@@ -173,6 +178,7 @@ export function AppSideBar() {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         toggleProjectMenu(project.id);
+                                                        setProjectId(project.id)
                                                     }}
                                                 >
                                                     {openProjects[project.id] ? <ChevronUp /> : <ChevronDown />}
@@ -212,6 +218,7 @@ export function AppSideBar() {
                                     </div>
                                 ))
                             )}
+                            <div className="h-2"></div>
                             <div className="h-2">
                                 {open && (
                                     <SidebarMenuItem>
@@ -227,6 +234,8 @@ export function AppSideBar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
+
+                <div className="h-4"></div>
 
                 {/* Misc Group */}
                 <SidebarGroup>

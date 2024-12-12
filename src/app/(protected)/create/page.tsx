@@ -63,7 +63,7 @@ const CreatePage = () => {
             }
         }
     }
-    
+
     const hasEnoughCredits = checkCredits?.data?.userCredits ? checkCredits.data.filecount <= checkCredits.data.userCredits : true
     return (
         <div className='flex items-center gap-12 h-full justify-center'>

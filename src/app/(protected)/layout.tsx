@@ -7,6 +7,7 @@ import { AppSideBar } from './app-sidebar'
 import useProject from '@/hooks/use-project'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { MousePointerClick } from 'lucide-react'
 
 // Define the shape of a Project
 interface Project {
@@ -83,7 +84,7 @@ const SidebarLayout = ({ children }: Props) => {
             onChange={handleSearch}
             className="flex-1 bg-transparent border-none outline-none text-sm placeholder-gray-500"
           />
-          {isClient && <UserButton />}
+          {isClient && <UserButton  />}
           {/* Dropdown container for search results */}
           {searchTerm && (
             <div className="absolute top-full left-0 w-full mt-2 bg-white shadow-lg border rounded-md z-10">
@@ -95,8 +96,12 @@ const SidebarLayout = ({ children }: Props) => {
                       className="p-2 hover:bg-gray-100 cursor-pointer"
                       onClick={() => handleProjectClick(proj.id, proj.name)}
                     >
-                      {renderMatchedText(proj.name, searchTerm)}
+                      <div className="flex flex-wrap items-center">
+                        {renderMatchedText(proj.name, searchTerm)}
+                        <MousePointerClick className="ml-2" />
+                      </div>
                     </li>
+
                   ))}
                 </ul>
               ) : (

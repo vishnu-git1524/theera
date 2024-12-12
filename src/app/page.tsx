@@ -1,11 +1,19 @@
+'use client'
+
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { UserButton, useUser } from "@clerk/nextjs";
+import { DoorOpen } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+
+  const router = useRouter();
+  const { isSignedIn } = useUser();
   return (
     <>
       {/* Background grid pattern */}
@@ -35,13 +43,25 @@ export default function Home() {
         </p>
 
         {/* Buttons */}
-        <div className="space-x-4">
-          <Button>
-            <Link href="/dashboard">Get Started</Link>
-          </Button>
-          <Link href="dashboard">
-            <Button variant="outline">Learn More</Button>
-          </Link>
+        <div className="flex items-center space-x-4">
+          {isSignedIn ? (
+            <>
+              <UserButton />
+              <Button variant="default" onClick={() => router.push("/dashboard")}>
+                Go to Dashboard
+                <DoorOpen />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="default" onClick={() => router.push("/sign-in")}>
+                Sign In
+              </Button>
+              <Button variant="outline" onClick={() => router.push("/sign-up")}>
+                Sign Up
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Features Section */}
@@ -126,27 +146,39 @@ export default function Home() {
         </div>
 
         {/* Demo Image */}
-        <Image
+        {/* <Image
           src="/bg.png"
           alt="theera"
           width={1000}
           height={1000}
           className="my-12 border rounded-md transition-all hover:shadow-2xl hover:scale-[102%] shadow-xl w-[70vw] h-auto"
-        />
+        /> */}
+
+        <div className="h-4"></div>
 
         {/* Footer Links */}
         <div className="flex flex-col items-center space-y-6 mb-10">
           <div className="flex items-center space-x-4">
-            <Link href="/sign-in">
-              <Button variant="default" className="px-6 py-2">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button variant="outline" className="px-6 py-2">
-                Sign Up
-              </Button>
-            </Link>
+            {isSignedIn ? (
+              <Link href="/dashboard">
+                <Button variant="default" className="px-6 py-2">
+                  Go to Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/sign-in">
+                  <Button variant="default" className="px-6 py-2">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button variant="outline" className="px-6 py-2">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
           <Separator className="w-full max-w-xs border-t border-gray-300" />
           <div className="text-sm text-gray-500">

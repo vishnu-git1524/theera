@@ -11,8 +11,10 @@ import ArchiveButton from './archive-button'
 // import TeamMembers from './TeamMembers'
 import dynamic from 'next/dynamic'
 import { toast } from 'sonner'
+import MeetingCard from './meeting-card'
 const InviteButton = dynamic(() => import('./InviteButton'), { ssr: false })
 const TeamMembers = dynamic(() => import('./TeamMembers'), { ssr: false })
+// const MeetingCard = dynamic(() => import('./meeting-card'), { ssr: false })
 
 const Dashboard = () => {
   const { project, projectId, projects } = useProject()
@@ -47,6 +49,7 @@ const Dashboard = () => {
       <div className="mt-4">
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-5'>
           <AskQuestionCard />
+          <MeetingCard />
         </div>
       </div>
       <div className="mt-8">

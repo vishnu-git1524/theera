@@ -22,3 +22,92 @@ export const indexGithubRepo = async(githubUrl: string, projectId: string, githu
     }))
 
 }
+
+
+   // const { getRootProps, getInputProps } = useDropzone({
+    //     // only accept audio files
+    //     accept: {
+    //         "audio/*":
+    //             ".mp3,.m4a,.wav,.flac,.ogg,.aac,.opus,.wma,.webm,.amr,.3gp,.mp2,.m2a,.m4b,.m4p,.mpc,.mpga,.oga,.spx,.wv,.mka,.m3u,.m3u8,.m4u".split(
+    //                 ",",
+    //             ),
+    //     },
+    //     multiple: false,
+    //     // 50mb
+    //     maxSize: 50_000_000,
+    //     onDrop: acceptedFiles => {
+    //         if (!project) return
+    //         (async () => {
+    //             setIsUploading(true);
+    //             try {
+    //                 const file = acceptedFiles[0];
+    //                 if (!file) return
+    //                 const downloadUrl = await uploadFileToFirebase(file as File, setProgress);
+    //                 uploadMeeting.mutate({
+    //                     meetingUrl: downloadUrl,
+    //                     projectId: project.id,
+    //                     name: file.name
+    //                 }, {
+    //                     onSuccess: (meeting) => {
+    //                         toast.success("Meeting Uploaded Successfully")
+    //                         router.push('/meetings');
+    //                         processMeeting.mutateAsync({
+    //                             meetingUrl: downloadUrl,
+    //                             meetingId: meeting.id,
+    //                             projectId: project.id
+    //                         })
+    //                     },
+    //                     onError: () => {
+    //                         toast.error("Failed to process meeting")
+    //                     }
+    //                 }
+    //                 )
+    //                 // toast.promise(
+    //                 //     uploadMeeting.mutateAsync({
+    //                 //         meetingUrl: downloadUrl,
+    //                 //         projectId: projectId,
+    //                 //         name: file.name
+    //                 //     }),
+    //                 //     {
+    //                 //         loading: "Processing meeting...",
+    //                 //         success: (meeting) => {
+    //                 //             router.push('/meetings');
+    //                 //             processMeeting.mutateAsync({
+    //                 //                 meetingUrl: downloadUrl,
+    //                 //                 meetingId: meeting.id,
+    //                 //                 projectId: projectId
+    //                 //             })
+    //                 //             return "Meeting processed!";
+    //                 //         },
+    //                 //         error: "Failed to process meeting",
+    //                 //         finally: () => {
+    //                 //             setIsUploading(false);
+    //                 //         },
+    //                 //     },
+    //                 // );
+    //                 window.alert(downloadUrl)
+    //                 setIsUploading(false);
+    //                 // toast.promise(
+    //                 //   processMeeting.mutateAsync({
+    //                 //     audio_url: downloadUrl,
+    //                 //     projectId: project.id,
+    //                 //   }),
+    //                 //   {
+    //                 //     loading: "Processing meeting...",
+    //                 //     success: ({ meetingId }) => {
+    //                 //       router.push("/meeting/" + meetingId);
+    //                 //       return "Meeting processed!";
+    //                 //     },
+    //                 //     error: "Failed to process meeting",
+    //                 //     finally: () => {
+    //                 //       setIsUploading(false);
+    //                 //     },
+    //                 //   },
+    //                 // );
+    //             } catch (error) {
+    //                 console.error(error);
+    //             } finally {
+    //             }
+    //         })();
+    //     },
+    // });

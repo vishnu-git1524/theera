@@ -3,12 +3,11 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 export async function uploadFileToFirebase(
   file: File,
-  name: string,
   setProgress?: (progress: number) => void,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
-      const storageRef = ref(storage, `${name}`);
+      const storageRef = ref(storage, file.name);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on(
         "state_changed",
@@ -38,7 +37,7 @@ export async function uploadFileToFirebase(
           // For instance, get the download URL: https://firebasestorage.googleapis.com/...
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log("File available at", downloadURL);
-            resolve(downloadURL);
+            resolve(downloadURL as string);
           });
         },
       );
