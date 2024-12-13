@@ -111,3 +111,43 @@ export const indexGithubRepo = async(githubUrl: string, projectId: string, githu
     //         })();
     //     },
     // });
+
+
+ // <>
+        //     <Dialog open={open} onOpenChange={setOpen}>
+        //         <DialogContent>
+        //             <DialogHeader>
+        //                 <DialogTitle>{issue.gist}</DialogTitle>
+        //                 <DialogDescription>
+        //                     {issue.createdAt.toLocaleDateString()}
+        //                 </DialogDescription>
+        //                 <p className='text-gray-600'>
+        //                     {issue.headline}
+        //                 </p>
+        //                 <blockquote className='mt-2 border-l-4 border-gray-300 bg-gray-50 p-4'>
+        //                     <span className='text-sm text-gray-600'>
+        //                         {issue.start} - {issue.end}
+        //                     </span>
+        //                     <p className='font-medium italic leading-relaxed text-gray-900'>
+        //                         {issue.summary}
+        //                     </p>
+
+        //                 </blockquote>
+        //             </DialogHeader>
+        //         </DialogContent>
+        //     </Dialog>
+        //     <Card className='relative'>
+        //         <CardHeader>
+        //             <CardTitle className='text-xl'>
+        //                 {issue.gist}
+        //             </CardTitle>
+        //             <div className="border-b"></div>
+        //             <CardDescription>
+        //                 {issue.headline}
+        //             </CardDescription>
+        //         </CardHeader>
+        //         <CardContent>
+        //             <Button onClick={() => setOpen(true)}>Details</Button>
+        //         </CardContent>
+        //     </Card>
+        // </>

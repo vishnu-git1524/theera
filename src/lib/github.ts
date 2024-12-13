@@ -4,7 +4,7 @@ import axios from 'axios';
 import { AIsummarizeCommit } from './gemini';
 
 export const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN,
+    auth: process.env.NEXT_PUBLIC_GITHUB_TOKEN,
 });
 
 interface Commit {

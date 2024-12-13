@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Document } from '@langchain/core/documents'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
 const model = genAI.getGenerativeModel({
   model: 'gemini-1.5-flash'
@@ -68,4 +68,32 @@ export async function AIgenerateEmbeddings(summary: string) {
   const result = await model.embedContent(summary);
   return result.embedding.values;
 }
+
+export async function askIssue(question: string, summary: string) {
+
+  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
+
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash'
+  });
+
+  try {
+    const response = await model.generateContent([
+      `You are an intelligent assistant who provides responses strictly based on the provided context. If the question is not related to the summary, respond with "The question is not related to the provided context." Here is the context:
+      ---
+      ${summary}
+      ---
+      Answer the following question only if it is related to the context:
+      ---
+      ${question}`
+    ]);
+
+    return response.response.text();
+  } catch (error) {
+    console.error("Error interacting with Gemini API:", error);
+    throw new Error("Failed to get a response from Gemini API");
+  }
+}
+
+
 
