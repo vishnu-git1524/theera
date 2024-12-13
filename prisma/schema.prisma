@@ -27,6 +27,8 @@ model User{
     Question Question[]
 
     Note Note[]
+
+    transaction Transaction[]
 }
 
 model Project{
@@ -123,6 +125,16 @@ model Note {
 
     userId          String
     user            User    @relation(fields: [userId], references: [id])
+}
+
+model Transaction{
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String
+    user User @relation(fields: [userId], references: [id])
+    credits Int
 }
 
 model Meeting {

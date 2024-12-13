@@ -97,7 +97,7 @@ const MeetingCard = () => {
             )}
             {isUploading && (
                 <div className=''>
-                    <CircularProgressbar value={progress} text={`${progress}%`} className='size-20' styles={
+                    <CircularProgressbar value={progress} text={`${Math.round(progress)}%`} className='size-20' styles={
                         buildStyles({
                             pathColor: '#2563eb',
                             textColor: '#2563eb'
