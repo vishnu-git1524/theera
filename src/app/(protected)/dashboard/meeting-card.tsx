@@ -81,10 +81,10 @@ const MeetingCard = () => {
                         Powered by AI.
                     </p>
                     <div className="mt-6">
-                        <Button disabled={isUploading}>
+                        <Button disabled={isUploading || !project}>
                             <Upload className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
                             Upload Meeting
-                            <input {...getInputProps()} />
+                            <input disabled={isUploading || !project} {...getInputProps()} />
                         </Button>
                     </div>
                     {/* {isUploading && (

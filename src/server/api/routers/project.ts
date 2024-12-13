@@ -402,4 +402,15 @@ export const projectRouter = createTRPCRouter({
             }
         });
     }),
+    getTransactions: protectedProcedure.query(async ({ ctx }) => {
+        return await ctx.db.transaction.findMany({
+            where: {
+                userId: ctx.user.userId!,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }),
+    
 })

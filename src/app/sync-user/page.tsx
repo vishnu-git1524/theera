@@ -2,6 +2,7 @@ import { db } from '@/server/db'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { notFound, redirect } from 'next/navigation'
 import React from 'react'
+import { toast } from 'sonner'
 
 const SyncUser = async () => {
     const { userId } = await auth()
@@ -13,6 +14,7 @@ const SyncUser = async () => {
     if (!user.emailAddresses[0]?.emailAddress) {
         return notFound()
     }
+
 
     await db.user.upsert({
         where: {

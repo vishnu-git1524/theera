@@ -26,10 +26,10 @@ const Archived = () => {
     useEffect(() => {
         // Ensure this only runs on the client
         if (typeof window !== "undefined" && archivedProjectsData) {
-          setArchivedProjects(archivedProjectsData);
+            setArchivedProjects(archivedProjectsData);
         }
-      }, [archivedProjectsData]);
-      
+    }, [archivedProjectsData]);
+
 
     // Loading state
     if (isLoading) {
@@ -49,7 +49,7 @@ const Archived = () => {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">Archived Projects</h1>
+            <h1 className="text-xl font-semibold">Archived Projects</h1>
             {archivedProjects.length === 0 ? (
                 <p className="text-lg text-gray-500">No projects are archived.</p>
             ) : (
