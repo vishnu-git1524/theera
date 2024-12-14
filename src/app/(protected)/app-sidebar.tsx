@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp } from "lucide-react";
+import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
@@ -30,6 +30,11 @@ const items = [
         title: "Meetings",
         url: '/meetings',
         icon: Presentation
+    },
+    {
+        title: "Canvas",
+        url: '/draw',
+        icon: PencilRuler
     },
     {
         title: "Notes",

@@ -71,7 +71,7 @@ export async function AIgenerateEmbeddings(summary: string) {
 
 export async function askIssue(question: string, summary: string) {
 
-  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
+  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY_ISSUES!);
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash'
@@ -95,5 +95,35 @@ export async function askIssue(question: string, summary: string) {
   }
 }
 
+export async function askAutocomplete(input: string) {
+  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY_ISSUES!);
+
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash'
+  });
+
+  try {
+    const response = await model.generateContent([
+      `You are an intelligent assistant that helps users complete their sentences or notes. Your goal is to suggest a natural and relevant continuation of the input text in Markdown format. 
+
+      Your response may include:
+      - Formatted text such as **bold**, *italic*, or lists.
+      - Code blocks if the input suggests technical content.
+
+      If the input is unclear or cannot be logically continued, respond with "The input is incomplete or cannot be continued based on the provided context."
+
+      The user is writing the following text:
+      ---
+      ${input}
+      ---
+      Suggest a continuation for the input text in Markdown format.`
+    ]);
+
+    return response.response.text();
+  } catch (error) {
+    console.error("Error interacting with Gemini API:", error);
+    throw new Error("Failed to get a response from Gemini API");
+  }
+}
 
 

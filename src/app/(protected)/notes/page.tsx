@@ -8,16 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import useProject from '@/hooks/use-project';
 import { api } from '@/trpc/react';
 import MDEditor from '@uiw/react-md-editor';
-import { toast } from 'sonner'; // Correct import for toast library
+import { toast } from 'sonner';
 import useRefetch from '@/hooks/use-refetch';
+import { Bot } from 'lucide-react';
+import { askAutocomplete } from '@/lib/gemini';
 
 const NotesPage = () => {
   const { projectId } = useProject();
   const { data: notes = [], isLoading, error } = api.project.getNotes.useQuery(
-    { projectId: projectId || '' }, // Ensure fallback to empty string to avoid undefined issues
-    {
-      enabled: !!projectId, // Only query if the `projectId` is valid
-    }
+    { projectId: projectId || '' },
+    { enabled: !!projectId }
   );
   const addNote = api.project.addNote.useMutation();
   const updateNote = api.project.updateNote.useMutation();
@@ -29,21 +29,20 @@ const NotesPage = () => {
     id: string;
     content: string;
   } | null>(null);
+  const [viewNoteContent, setViewNoteContent] = useState<string | null>(null);
   const [newNoteContent, setNewNoteContent] = useState<string>('');
   const [editNoteContent, setEditNoteContent] = useState<string>('');
+  const [isLoadingAI, setIsLoadingAI] = useState<boolean>(false);
 
-  // Ensure mutations only proceed if data (like `projectId`) is valid
   const handleAddNote = async () => {
     if (!projectId) {
       toast.error('No project selected. Please select a valid project.');
       return;
     }
-
     if (!newNoteContent.trim()) {
       toast.error('Note content cannot be empty.');
       return;
     }
-
     toast.promise(
       addNote.mutateAsync({ projectId, content: newNoteContent }).then(() => {
         setNewNoteContent('');
@@ -72,6 +71,7 @@ const NotesPage = () => {
     toast.promise(
       updateNote.mutateAsync({ noteId: selectedNote.id, content: editNoteContent }).then(() => {
         setSelectedNote(null);
+        setEditNoteContent('');
         setIsDialogOpen(false);
         refetch();
       }),
@@ -83,10 +83,8 @@ const NotesPage = () => {
     );
   };
 
-  const handleDeleteNote = async (noteId: string) => {
-    // const confirmed = window.confirm('Are you sure you want to delete this note?');
-    // if (!confirmed) return;
 
+  const handleDeleteNote = async (noteId: string) => {
     toast.promise(
       deleteNote.mutateAsync({ noteId }).then(refetch),
       {
@@ -97,6 +95,27 @@ const NotesPage = () => {
     );
   };
 
+  const handleAutocompleteClick = async () => {
+    const input = selectedNote ? editNoteContent : newNoteContent;
+    if (!input.trim()) {
+      toast.error('Input cannot be empty for AI autocomplete.');
+      return;
+    }
+    setIsLoadingAI(true);
+    try {
+      const response = await askAutocomplete(input);
+      if (selectedNote) {
+        setEditNoteContent((prev) => prev + '\n' + response);
+      } else {
+        setNewNoteContent((prev) => prev + '\n' + response);
+      }
+    } catch (error) {
+      console.error('Error with autocomplete:', error);
+      toast.error('Failed to generate AI autocomplete response.');
+    } finally {
+      setIsLoadingAI(false);
+    }
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -105,7 +124,7 @@ const NotesPage = () => {
         <Button onClick={() => setIsDialogOpen(true)}>Add New Note</Button>
       </header>
 
-      {isLoading && typeof window !== 'undefined' ? (
+      {isLoading ? (
         <div className="flex justify-center items-center h-48">
           <div className="spinner border-primary" />
         </div>
@@ -124,7 +143,17 @@ const NotesPage = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <MDEditor.Markdown source={note.content} />
+                <div className="max-h-24 overflow-hidden text-ellipsis">
+                  <MDEditor.Markdown source={note.content.split('\n')[0] + '...'} />
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="link"
+                  onClick={() => setViewNoteContent(note.content)}
+                >
+                  View More
+                </Button>
               </CardContent>
               <div className="flex justify-between px-4 py-2">
                 <Button
@@ -151,23 +180,53 @@ const NotesPage = () => {
         </div>
       )}
 
+      <Dialog open={!!viewNoteContent} onOpenChange={() => setViewNoteContent(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Note Preview</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <MDEditor preview='preview' height={400} value={viewNoteContent || ''} />
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button variant="outline" onClick={() => setViewNoteContent(null)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedNote ? 'Edit Note' : 'Add New Note'}</DialogTitle>
           </DialogHeader>
-          <MDEditor
-            value={selectedNote ? editNoteContent : newNoteContent}
-            onChange={(value = '') => selectedNote ? setEditNoteContent(value) : setNewNoteContent(value)} // Fixing type issue
-            className="mb-4"
-          />
-          <div className="flex justify-end gap-2">
+          <div className="space-y-4">
+            <MDEditor
+              value={selectedNote ? editNoteContent : newNoteContent}
+              onChange={(value = '') =>
+                selectedNote ? setEditNoteContent(value) : setNewNoteContent(value)
+              }
+              height={400}
+              className="border p-4 rounded-md"
+              preview="edit"
+            />
+            <Button
+              variant="outline"
+              className="w-full mt-4 flex items-center justify-center gap-2"
+              onClick={handleAutocompleteClick}
+              disabled={isLoadingAI || !(selectedNote ? editNoteContent.trim() : newNoteContent.trim())}
+            >
+              <Bot className="text-xl" />
+              {isLoadingAI ? 'Loading...' : 'AI Autocomplete'}
+            </Button>
+
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={selectedNote ? handleUpdateNote : handleAddNote}
-            >
+            <Button onClick={selectedNote ? handleUpdateNote : handleAddNote}>
               {selectedNote ? 'Save Changes' : 'Add Note'}
             </Button>
           </div>
