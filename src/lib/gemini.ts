@@ -126,4 +126,37 @@ export async function askAutocomplete(input: string) {
   }
 }
 
+export async function analyzeImage(file: File, model: any) {
+  try {
 
+    const reader = new FileReader();
+    return new Promise<string>((resolve, reject) => {
+      reader.onloadend = async () => {
+        if (typeof reader.result === 'string') {
+          const base64Data = reader.result.split(',')[1] || '';
+
+          const response = await model.generateContent([
+            {
+              inlineData: {
+                data: base64Data,
+                mimeType: file.type || 'application/octet-stream',
+              },
+            },
+            `You are an intelligent senior software engineer with expertise in machine learning and computer vision. 
+           You are explaining to a junior software engineer the purpose and content of the image provided in the file.
+          ---
+          Please provide an analysis of the image based on the metadata above. Limit your response to no more than 100 words.`
+          ]);
+
+          resolve(response.response.text || 'No response text available.');
+        } else {
+          throw new Error('Failed to read file as a string.');
+        }
+      };
+      reader.readAsDataURL(file);
+    })
+
+  } catch (error) {
+    throw error;
+  }
+}

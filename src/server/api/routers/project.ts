@@ -422,4 +422,93 @@ export const projectRouter = createTRPCRouter({
             },
         });
     }),
+    addBug: protectedProcedure.input(
+        z.object({
+            projectId: z.string(),
+            title: z.string().min(1, 'Bug title cannot be empty.'),
+            description: z.string().min(1, 'Bug description cannot be empty.'),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        return await ctx.db.bug.create({
+            data: {
+                projectId: input.projectId,
+                title: input.title,
+                description: input.description,
+                userId: ctx.user.userId!,
+            },
+        });
+    }),
+
+    // Edit an existing bug
+    updateBug: protectedProcedure.input(
+        z.object({
+            bugId: z.string(),
+            title: z.string().min(1, 'Bug title cannot be empty.'),
+            description: z.string().min(1, 'Bug description cannot be empty.'),
+            status: z.enum(['PENDING', 'FIXED']),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const bug = await ctx.db.bug.findUnique({
+            where: { id: input.bugId },
+        });
+
+        if (!bug || bug.userId !== ctx.user.userId!) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You are not authorized to edit this bug.' });
+        }
+
+        return await ctx.db.bug.update({
+            where: { id: input.bugId },
+            data: {
+                title: input.title,
+                description: input.description,
+                status: input.status,
+            },
+        });
+    }),
+
+    // Delete a bug
+    deleteBug: protectedProcedure.input(
+        z.object({
+            bugId: z.string(),
+        })
+    ).mutation(async ({ ctx, input }) => {
+        const bug = await ctx.db.bug.findUnique({
+            where: { id: input.bugId },
+        });
+
+        if (!bug || bug.userId !== ctx.user.userId!) {
+            throw new TRPCError({ code: 'FORBIDDEN', message: 'You are not authorized to delete this bug.' });
+        }
+
+        return await ctx.db.bug.delete({
+            where: { id: input.bugId },
+        });
+    }),
+    getAllBugs: protectedProcedure
+        .input(
+            z.object({
+                projectId: z.string(), // Ensure the projectId is provided for filtering
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            return await ctx.db.bug.findMany({
+                where: {
+                    projectId: input.projectId,
+                },
+                include: {
+                    user: {
+                        select: {
+                            firstName: true,
+                            lastName: true,
+                            emailAddress: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    createdAt: 'desc',
+                },
+            });
+        }),
+
+
 })

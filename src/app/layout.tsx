@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/themes-provider";
 
 export const metadata: Metadata = {
   title: "Theera",
@@ -15,13 +16,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className={`${GeistSans.variable}`}>
-        <body>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          <Toaster richColors />
-        </body>
-      </html>
-    </ClerkProvider>
+      <ClerkProvider>
+        <html lang="en" className={`${GeistSans.variable}`}>
+          <body>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <Toaster richColors />
+          </body>
+        </html>
+      </ClerkProvider>
   );
 }

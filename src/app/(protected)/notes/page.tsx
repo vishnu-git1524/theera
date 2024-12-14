@@ -138,9 +138,6 @@ const NotesPage = () => {
             <Card key={note.id}>
               <CardHeader>
                 <CardTitle>{new Date(note.createdAt).toLocaleDateString()}</CardTitle>
-                <CardDescription>
-                  <Badge variant="secondary">Note ID: {note.id}</Badge>
-                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="max-h-24 overflow-hidden text-ellipsis">

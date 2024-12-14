@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield } from "lucide-react";
+import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield, BotMessageSquare, Bug } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
@@ -34,12 +34,24 @@ const items = [
     {
         title: "Canvas",
         url: '/draw',
-        icon: PencilRuler
+        icon: PencilRuler,
+        subOptions: [
+            {
+                title: "AI Analyze",
+                url: '/draw/analyze',
+                icon: BotMessageSquare
+            },
+        ]
     },
     {
         title: "Notes",
         url: '/notes',
         icon: NotebookPen
+    },
+    {
+        title: "Bugs",
+        url: '/bugs',
+        icon: Bug
     },
 ];
 
@@ -56,23 +68,23 @@ const misc = [
     }
 ];
 
-const legalItems = [
-    {
-        title: "About Theera",
-        url: '/about',
-        icon: Info
-    },
-    {
-        title: "Terms and Conditions",
-        url: '/terms',
-        icon: FileText
-    },
-    {
-        title: "Privacy Policy",
-        url: '/privacy',
-        icon: Shield
-    }
-];
+// const legalItems = [
+//     {
+//         title: "About Theera",
+//         url: '/about',
+//         icon: Info
+//     },
+//     {
+//         title: "Terms and Conditions",
+//         url: '/terms',
+//         icon: FileText
+//     },
+//     {
+//         title: "Privacy Policy",
+//         url: '/privacy',
+//         icon: Shield
+//     }
+// ];
 
 export function AppSideBar() {
     const pathname = usePathname();
@@ -81,6 +93,14 @@ export function AppSideBar() {
     const { projects, project, projectId, setProjectId, isLoading } = useProject();
     const refetch = useRefetch()
     const archiveProject = api.project.archiveProject.useMutation()
+    const [dropdownState, setDropdownState] = useState<Record<string, boolean>>({});
+
+    const toggleDropdown = (title: string) => {
+        setDropdownState(prev => ({
+            ...prev,
+            [title]: !prev[title],
+        }));
+    };
 
     const handleArchive = () => {
         const confirm = window.confirm("Are you sure you want to archive this project?")
@@ -151,18 +171,50 @@ export function AppSideBar() {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map(item => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={item.url} className={cn({
-                                            'bg-primary text-white': pathname === item.url
-                                        }, 'list-none')}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
+                                <div key={item.title}>
+                                    <SidebarMenuItem>
+                                        <div className="flex items-center justify-between w-full">
+                                            <SidebarMenuButton asChild>
+                                                <Link href={item.url} className={cn({
+                                                    'bg-primary text-white': pathname === item.url
+                                                }, 'list-none flex items-center gap-2')}>
+                                                    <item.icon />
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                            {item.subOptions && (
+                                                <div
+                                                    className="cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleDropdown(item.title); // Function to toggle dropdown state
+                                                    }}
+                                                >
+                                                    {dropdownState[item.title] ? <ChevronUp /> : <ChevronDown />}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </SidebarMenuItem>
+                                    {item.subOptions && dropdownState[item.title] && (
+                                        <div className="pl-8 space-y-2 bg-gray-50 py-2">
+                                            {item.subOptions.map(subOption => (
+                                                <SidebarMenuItem key={subOption.title}>
+                                                    <SidebarMenuButton asChild>
+                                                        <Link href={subOption.url} className={cn({
+                                                            'bg-primary text-white': pathname === subOption.url
+                                                        }, 'list-none flex items-center gap-2')}>
+                                                            <subOption.icon />
+                                                            <span>{subOption.title}</span>
+                                                        </Link>
+                                                    </SidebarMenuButton>
+                                                </SidebarMenuItem>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             ))}
                         </SidebarMenu>
+
                     </SidebarGroupContent>
                 </SidebarGroup>
 
@@ -210,7 +262,7 @@ export function AppSideBar() {
                                         </SidebarMenuItem>
                                         {/* Sub-options - Collapsible Section */}
                                         {openProjects[project.id] && (
-                                            <div className="pl-8 space-y-2 bg-gray-100 py-2">
+                                            <div className="pl-8 space-y-2 bg-gray-50 py-2">
                                                 <Button
                                                     size="sm"
                                                     variant="destructive"
@@ -283,7 +335,7 @@ export function AppSideBar() {
                 <div className="h-4"></div>
 
                 {/* Legal Group */}
-                <SidebarGroup>
+                {/* <SidebarGroup>
                     <SidebarGroupLabel>Legal</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
@@ -301,7 +353,7 @@ export function AppSideBar() {
                             ))}
                         </SidebarMenu>
                     </SidebarGroupContent>
-                </SidebarGroup>
+                </SidebarGroup> */}
             </SidebarContent>
         </Sidebar>
     );

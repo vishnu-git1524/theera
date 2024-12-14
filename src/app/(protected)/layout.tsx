@@ -7,7 +7,9 @@ import { AppSideBar } from './app-sidebar'
 import useProject from '@/hooks/use-project'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { MousePointerClick } from 'lucide-react'
+import { Moon, MousePointerClick, Sun } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useTheme } from 'next-themes'
 
 // Define the shape of a Project
 interface Project {
@@ -28,6 +30,7 @@ const SidebarLayout = ({ children }: Props) => {
   const [isClient, setIsClient] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
+  const { setTheme } = useTheme()
 
   const router = useRouter()
 
