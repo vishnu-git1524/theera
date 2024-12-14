@@ -65,6 +65,8 @@ model UserToProject{
     user User @relation(fields: [userId], references: [id])
     project Project @relation(fields: [projectId], references: [id])
 
+    isAdmin Boolean @default(false)
+
     @@unique([userId, projectId])
 
 }

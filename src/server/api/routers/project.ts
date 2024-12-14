@@ -14,6 +14,7 @@ export const projectRouter = createTRPCRouter({
             githubToken: z.string().optional()
         })
     ).mutation(async ({ ctx, input }) => {
+        // Step 1: Check the user's credits
         const userCredits = await ctx.db.user.findUnique({
             where: {
                 id: ctx.user.userId!
@@ -32,19 +33,25 @@ export const projectRouter = createTRPCRouter({
             throw new Error("Insufficient Credits")
         }
 
+        // Step 2: Create the project
         const project = await ctx.db.project.create({
             data: {
                 githubUrl: input.githubUrl,
                 name: input.name,
                 UserToProject: {
                     create: {
-                        userId: ctx.user.userId!
+                        userId: ctx.user.userId!, // The first user
+                        isAdmin: true // Mark this user as admin
                     }
                 }
             }
         })
+
+        // Step 3: Perform additional operations like indexing and pulling commits
         await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
         await pullCommits(project.id)
+
+        // Step 4: Deduct the credits from the user's account
         await ctx.db.user.update({
             where: {
                 id: ctx.user.userId!
@@ -55,8 +62,11 @@ export const projectRouter = createTRPCRouter({
                 }
             }
         })
+
+        // Step 5: Return the created project
         return project
     }),
+
     getProjects: protectedProcedure.query(async ({ ctx }) => {
         return await ctx.db.project.findMany({
             where: {
@@ -412,5 +422,4 @@ export const projectRouter = createTRPCRouter({
             },
         });
     }),
-    
 })

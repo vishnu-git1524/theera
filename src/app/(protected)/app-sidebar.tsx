@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler } from "lucide-react";
+import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
@@ -53,6 +53,24 @@ const misc = [
         title: "Archived",
         url: '/archived',
         icon: ArchiveRestore
+    }
+];
+
+const legalItems = [
+    {
+        title: "About Theera",
+        url: '/about',
+        icon: Info
+    },
+    {
+        title: "Terms and Conditions",
+        url: '/terms',
+        icon: FileText
+    },
+    {
+        title: "Privacy Policy",
+        url: '/privacy',
+        icon: Shield
     }
 ];
 
@@ -255,6 +273,28 @@ export function AppSideBar() {
                                         }, 'list-none')}>
                                             <miscItem.icon />
                                             <span>{miscItem.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+                <div className="h-4"></div>
+
+                {/* Legal Group */}
+                <SidebarGroup>
+                    <SidebarGroupLabel>Legal</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {legalItems.map(item => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild>
+                                        <Link href={item.url} className={cn({
+                                            'bg-primary text-white': pathname === item.url
+                                        }, 'list-none')}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>

@@ -40,8 +40,8 @@ const TeamMembers = () => {
             {/* Header Section */}
             <div className="flex justify-between items-center mb-8 border-b pb-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Team Members</h1>
-                    <h3 className="text-lg text-gray-500">Working with: {project?.name || 'Unknown Project'}</h3>
+                    <h1 className="text-2xl font-semibold text-gray-800">Team Members</h1>
+                    <h3 className="text-lg text-gray-500">Project: {project?.name || 'Unknown Project'}</h3>
                 </div>
                 <div>
                     <InviteButton projectId={projectId} disabled={false} />
@@ -49,43 +49,50 @@ const TeamMembers = () => {
             </div>
 
             {/* Team Members Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {teamMembers.length === 0 ? (
                     <div className="col-span-4 text-center text-gray-500 mt-8 text-lg">No team members found. Add members to get started.</div>
                 ) : (
                     teamMembers.map((member) => (
                         <div
                             key={member.id}
-                            className="bg-white shadow-lg hover:shadow-2xl transition-shadow duration-200 rounded-lg p-4 flex flex-col items-start justify-between"
+                            className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-lg p-6 flex flex-col items-center justify-between border border-gray-200"
                         >
                             {/* Member Header with Image */}
-                            <div className="flex items-center w-full space-x-4 mb-4">
+                            <div className="flex flex-col items-center mb-6">
                                 <img
                                     src={member.user.imageUrl || ''}
                                     alt={member.user.firstName}
-                                    className="w-16 h-16 rounded-full object-cover"
+                                    className="w-24 h-24 rounded-full object-cover mb-3"
                                 />
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-800">{member.user.firstName}</h3>
-                                    {/* {member.role && <p className="text-sm text-gray-600 mt-1">{member.role}</p>} */}
-                                </div>
+                                <h3 className="text-xl font-semibold text-gray-800">{member.user.firstName}</h3>
+
+                                {/* Display Admin label if the user is an admin */}
+                                {member.isAdmin && (
+                                    <span className="mt-2 text-sm text-white bg-green-600 rounded-full px-3 py-1">
+                                        Admin
+                                    </span>
+                                )}
                             </div>
-                            {/* Member Details or actions */}
-                            <div className="w-full flex justify-between items-center mt-auto">
+
+                            {/* Member Details */}
+                            <div className="w-full flex flex-col items-center mt-auto space-y-4">
                                 {member.user?.emailAddress && (
                                     <a
                                         href={`mailto:${member.user.emailAddress}`}
-                                        className="text-blue-500 hover:text-blue-700 text-sm transition duration-200"
+                                        className="text-blue-600 hover:text-blue-800 text-sm transition duration-200 flex items-center"
                                     >
-                                        Contact
+                                        <ExternalLink className="inline-block mr-2" /> Contact
                                     </a>
                                 )}
-                                <button
-                                    className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-sm text-blue-700 rounded-md transition duration-200"
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     onClick={() => toast.info(`Details for ${member.user?.firstName}`)}
+                                    className="w-full"
                                 >
-                                    Details
-                                </button>
+                                    View Details
+                                </Button>
                             </div>
                         </div>
                     ))
