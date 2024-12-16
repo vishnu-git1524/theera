@@ -510,5 +510,33 @@ export const projectRouter = createTRPCRouter({
             });
         }),
 
+    saveAnalysis: protectedProcedure.input(z.object({
+        projectId: z.string(),
+        answer: z.string(),
+    })).mutation(async ({ ctx, input }) => {
+        return await ctx.db.analyze.create({
+            data: {
+                answer: input.answer,
+                projectId: input.projectId,
+                userId: ctx.user.userId!
+            }
+        })
+    }),
+    getAnalysis: protectedProcedure.input(z.object({
+        projectId: z.string(),
+    })).query(async ({ ctx, input }) => {
+        return await ctx.db.analyze.findMany({
+            where: {
+                projectId: input.projectId
+            },
+            include: {
+                user: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+    }),
+
 
 })

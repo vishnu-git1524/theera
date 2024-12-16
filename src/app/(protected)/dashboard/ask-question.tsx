@@ -88,6 +88,9 @@ const AskQuestionCard = () => {
             <Card className='relative col-span-3'> {/* Prevent any blur effect here */}
                 <CardHeader>
                     <CardTitle>Ask a question</CardTitle>
+                    <CardDescription>
+                        Theera has knowledge of the codebase
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={onSubmit}>

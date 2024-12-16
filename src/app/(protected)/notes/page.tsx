@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,8 +10,9 @@ import { api } from '@/trpc/react';
 import MDEditor from '@uiw/react-md-editor';
 import { toast } from 'sonner';
 import useRefetch from '@/hooks/use-refetch';
-import { Bot } from 'lucide-react';
+import { Bot, Info } from 'lucide-react';
 import { askAutocomplete } from '@/lib/gemini';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 const NotesPage = () => {
   const { projectId } = useProject();
@@ -34,7 +35,7 @@ const NotesPage = () => {
   const [editNoteContent, setEditNoteContent] = useState<string>('');
   const [isLoadingAI, setIsLoadingAI] = useState<boolean>(false);
 
-  const handleAddNote = async () => {
+  const handleAddNote = () => {
     if (!projectId) {
       toast.error('No project selected. Please select a valid project.');
       return;
@@ -45,7 +46,7 @@ const NotesPage = () => {
     }
     toast.promise(
       addNote.mutateAsync({ projectId, content: newNoteContent }).then(() => {
-        setNewNoteContent('');
+        setNewNoteContent(''); // Reset new note content after adding
         setIsDialogOpen(false);
         refetch();
       }),
@@ -55,6 +56,12 @@ const NotesPage = () => {
         error: 'Failed to add note.',
       }
     );
+  };
+
+  const handleDialogOpen = () => {
+    setIsDialogOpen(true);
+    setSelectedNote(null); // Reset selectedNote to null for "Add New Note"
+    setNewNoteContent(''); // Clear the content when opening "Add New Note"
   };
 
   const handleUpdateNote = async () => {
@@ -82,7 +89,6 @@ const NotesPage = () => {
       }
     );
   };
-
 
   const handleDeleteNote = async (noteId: string) => {
     toast.promise(
@@ -117,73 +123,128 @@ const NotesPage = () => {
     }
   };
 
+  // Use localStorage to manage note statuses
+  const getNotesFromLocalStorage = () => {
+    const storedNotes = localStorage.getItem('notesStatus');
+    return storedNotes ? JSON.parse(storedNotes) : {};
+  };
+
+  const updateNoteStatusInLocalStorage = (noteId: string, status: string) => {
+    const notesStatus = getNotesFromLocalStorage();
+    notesStatus[noteId] = status;
+    localStorage.setItem('notesStatus', JSON.stringify(notesStatus));
+  };
+
+  const getNoteStatus = (noteId: string) => {
+    const notesStatus = getNotesFromLocalStorage();
+    return notesStatus[noteId] || 'To Do'; // Default to "To Do" if no status is found
+  };
+
+  const handleStatusChange = (noteId: string, status: string) => {
+    updateNoteStatusInLocalStorage(noteId, status);
+    refetch(); // Optionally refetch if you need to sync status updates
+  };
+
   return (
     <div className="space-y-6 p-6">
       <header className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Project Notes</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>Add New Note</Button>
+        <Button onClick={() => handleDialogOpen()}>Add New Note</Button>
       </header>
-
-      {isLoading ? (
-        <div className="flex justify-center items-center h-48">
-          <div className="spinner border-primary" />
-        </div>
-      ) : error ? (
-        <div className="text-red-500">Failed to load notes. Please try again later.</div>
-      ) : notes.length === 0 ? (
-        <div className="text-center text-gray-500">No notes yet. Start by adding a new note!</div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {notes.map((note) => (
-            <Card key={note.id}>
-              <CardHeader>
-                <CardTitle>{new Date(note.createdAt).toLocaleDateString()}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="max-h-24 overflow-hidden text-ellipsis">
-                  <MDEditor.Markdown source={note.content.split('\n')[0] + '...'} />
+      <div className="bg-blue-50 px-4 py-2 rounded-md border border-blue-200 text-blue-700">
+                <div className="flex items-center gap-2">
+                    <Info className="size-4" />
+                    <p className="text-sm font-semibold">The status of tasks is personalized for each user within the team.</p>
                 </div>
+            </div>
 
-                <Button
-                  size="sm"
-                  variant="link"
-                  onClick={() => setViewNoteContent(note.content)}
-                >
-                  View More
-                </Button>
-              </CardContent>
-              <div className="flex justify-between px-4 py-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setSelectedNote({ id: note.id, content: note.content });
-                    setEditNoteContent(note.content);
-                    setIsDialogOpen(true);
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleDeleteNote(note.id)}
-                >
-                  Delete
-                </Button>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-l-2 border-r-2 border-gray-300">
+        {['To Do', 'In Progress', 'Done'].map((status, index) => (
+          <div key={status} className={`space-y-4 ${index === 0 ? 'pl-4' : ''} border-r-2 border-gray-300 pr-4`}>
+            <h2 className="text-xl font-semibold">{status}</h2>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-48">
+                <div className="spinner border-primary" />
               </div>
-            </Card>
-          ))}
-        </div>
-      )}
+            ) : error ? (
+              <div className="text-red-500">Failed to load notes. Please try again later.</div>
+            ) : notes.filter((note) => getNoteStatus(note.id) === status).length === 0 ? (
+              <div className="text-center text-gray-500">No notes in {status}.</div>
+            ) : (
+              notes
+                .filter((note) => getNoteStatus(note.id) === status)
+                .map((note) => (
+                  <Card key={note.id}>
+                    <CardHeader>
+                      <CardTitle>{new Date(note.createdAt).toLocaleDateString()}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="max-h-24 overflow-hidden text-ellipsis">
+                        <MDEditor.Markdown source={note.content.split('\n')[0] + '...'} />
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="link"
+                        onClick={() => setViewNoteContent(note.content)}
+                      >
+                        View More
+                      </Button>
+                    </CardContent>
+                    <div className="flex justify-between px-4 py-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedNote({ id: note.id, content: note.content });
+                          setEditNoteContent(note.content);
+                          setIsDialogOpen(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteNote(note.id)}
+                      >
+                        Delete
+                      </Button>
+                      <div className="flex gap-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              {getNoteStatus(note.id)}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-40">
+                            {['To Do', 'In Progress', 'Done'].map((newStatus) => (
+                              <DropdownMenuItem
+                                key={newStatus}
+                                onClick={() => handleStatusChange(note.id, newStatus)}
+                              >
+                                {newStatus}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+            )}
+          </div>
+        ))}
+      </div>
 
+
+      {/* Dialog for Viewing/Editing Notes */}
       <Dialog open={!!viewNoteContent} onOpenChange={() => setViewNoteContent(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Note Preview</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <MDEditor preview='preview' height={400} value={viewNoteContent || ''} />
+            <MDEditor preview="preview" height={400} value={viewNoteContent || ''} />
           </div>
           <div className="flex justify-end mt-4">
             <Button variant="outline" onClick={() => setViewNoteContent(null)}>
@@ -193,6 +254,7 @@ const NotesPage = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog for Adding/Editing Notes */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -217,7 +279,6 @@ const NotesPage = () => {
               <Bot className="text-xl" />
               {isLoadingAI ? 'Loading...' : 'AI Autocomplete'}
             </Button>
-
           </div>
           <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
