@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import useRefetch from '../../../hooks/use-refetch'
 import { redirect, useRouter } from 'next/navigation'
-import { Info } from 'lucide-react'
+import { Info, Loader2 } from 'lucide-react'
 
 type FormInput = {
     repoUrl: string
@@ -66,8 +66,8 @@ const CreatePage = () => {
 
     const hasEnoughCredits = checkCredits?.data?.userCredits ? checkCredits.data.filecount <= checkCredits.data.userCredits : true
     return (
-        <div className='flex items-center gap-12 h-full justify-center'>
-            <img src='/undraw_github.svg' className='h-56 w-auto' />
+        <div className='flex flex-col md:flex-row items-center gap-12 h-full justify-center'>
+            <img src='/undraw_github.svg' className='hidden md:block h-56 w-auto' />
             <div>
                 <div>
                     <h1 className='font-semibold text-2xl'>
@@ -94,7 +94,8 @@ const CreatePage = () => {
                                     </div>
                                     <p className="text-sm">You have <strong>{checkCredits.data?.userCredits}</strong> credits remaining </p>
                                 </div>
-                            </>)}
+                            </>
+                        )}
                         <div className="h-2"></div>
                         <div className="bg-blue-50 px-4 py-2 rounded-md border border-blue-200 text-blue-700">
                             <div className="flex items-center gap-2">
@@ -113,12 +114,16 @@ const CreatePage = () => {
                             {
                                 !!checkCredits.data ? "Create Project" : "Check Credits"
                             }
+                            {
+                                createProject.isPending || checkCredits.isPending || !hasEnoughCredits ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null
+                            }
                         </Button>
+
                     </form>
                 </div>
             </div>
-
         </div>
+
     )
 }
 

@@ -147,20 +147,21 @@ const NotesPage = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <header className="flex justify-between items-center">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center sm:gap-4">
         <h1 className="text-2xl font-bold">Project Notes</h1>
-        <Button onClick={() => handleDialogOpen()}>Add New Note</Button>
+        <Button onClick={() => handleDialogOpen()} className="mt-4 sm:mt-0">Add New Note</Button>
       </header>
-      <div className="bg-blue-50 px-4 py-2 rounded-md border border-blue-200 text-blue-700">
-                <div className="flex items-center gap-2">
-                    <Info className="size-4" />
-                    <p className="text-sm font-semibold">The status of tasks is personalized for each user within the team.</p>
-                </div>
-            </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-l-2 border-r-2 border-gray-300">
+      <div className="bg-blue-50 px-4 py-2 rounded-md border border-blue-200 text-blue-700">
+        <div className="flex items-center gap-2">
+          <Info className="size-4" />
+          <p className="text-sm font-semibold">The status of tasks is personalized for each user within the team.</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {['To Do', 'In Progress', 'Done'].map((status, index) => (
-          <div key={status} className={`space-y-4 ${index === 0 ? 'pl-4' : ''} border-r-2 border-gray-300 pr-4`}>
+          <div key={status} className="space-y-4">
             <h2 className="text-xl font-semibold">{status}</h2>
             {isLoading ? (
               <div className="flex justify-center items-center h-48">
@@ -174,7 +175,7 @@ const NotesPage = () => {
               notes
                 .filter((note) => getNoteStatus(note.id) === status)
                 .map((note) => (
-                  <Card key={note.id}>
+                  <Card key={note.id} className="flex flex-col">
                     <CardHeader>
                       <CardTitle>{new Date(note.createdAt).toLocaleDateString()}</CardTitle>
                     </CardHeader>
@@ -186,6 +187,7 @@ const NotesPage = () => {
                         size="sm"
                         variant="link"
                         onClick={() => setViewNoteContent(note.content)}
+                        className="mt-2"
                       >
                         View More
                       </Button>
@@ -236,7 +238,6 @@ const NotesPage = () => {
         ))}
       </div>
 
-
       {/* Dialog for Viewing/Editing Notes */}
       <Dialog open={!!viewNoteContent} onOpenChange={() => setViewNoteContent(null)}>
         <DialogContent>
@@ -284,7 +285,10 @@ const NotesPage = () => {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={selectedNote ? handleUpdateNote : handleAddNote}>
+            <Button
+              onClick={selectedNote ? handleUpdateNote : handleAddNote}
+              disabled={isLoadingAI}
+            >
               {selectedNote ? 'Save Changes' : 'Add Note'}
             </Button>
           </div>

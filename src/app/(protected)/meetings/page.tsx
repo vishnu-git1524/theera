@@ -4,29 +4,30 @@ import useProject from '@/hooks/use-project'
 import { api } from '@/trpc/react'
 import React from 'react'
 import MeetingCard from '../dashboard/meeting-card'
-import { db } from '@/server/db'
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import useRefetch from '@/hooks/use-refetch'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { Trash2, Eye } from 'lucide-react' // Import relevant icons
 
 const MeetingsPage = () => {
-    const { projectId, projects } = useProject()
-    const { data: meetings, isLoading } = api.project.getMeetings.useQuery({ projectId }, {
-        refetchInterval: 4000
-    })
+    const { projectId } = useProject()
+    const { data: meetings, isLoading } = api.project.getMeetings.useQuery(
+        { projectId },
+        {
+            refetchInterval: 4000,
+        }
+    )
 
     const refetch = useRefetch()
-
     const deleteMeeting = api.project.deleteMeeting.useMutation()
 
     return (
         <>
             <MeetingCard />
             <div className="h-6"></div>
-            <h1 className='text-xl font-semibold'>Meetings</h1>
+            <h1 className="text-xl font-semibold">Meetings</h1>
             {meetings && meetings.length === 0 && <div>No meetings found</div>}
             {isLoading && <div>Loading...</div>}
             <ul role="list" className="divide-y divide-gray-200">
@@ -44,7 +45,7 @@ const MeetingsPage = () => {
                                     {meeting.name}
                                 </Link>
                                 {meeting.status === 'PROCESSING' && (
-                                    <Badge className='bg-yellow-500 text-white'>
+                                    <Badge className="bg-yellow-500 text-white">
                                         Processing...
                                     </Badge>
                                 )}
@@ -62,23 +63,58 @@ const MeetingsPage = () => {
                             </div>
                         </div>
                         <div className="flex items-center flex-none gap-x-4">
-                            <Link
-                                href={`/meetings/${meeting.id}`} >
-                                <Button size='sm' variant='outline'>
-                                    View meeting
+                            {/* Show icons on mobile and buttons on larger screens */}
+                            <div className="hidden sm:flex gap-x-4">
+                                <Link href={`/meetings/${meeting.id}`}>
+                                    <Button size="sm" variant="outline">
+                                        View meeting
+                                    </Button>
+                                </Link>
+                                <Button
+                                    disabled={deleteMeeting.isPending}
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() =>
+                                        deleteMeeting.mutate(
+                                            { meetingId: meeting.id },
+                                            {
+                                                onSuccess: () => {
+                                                    toast.success('Meeting deleted successfully')
+                                                    refetch()
+                                                },
+                                            }
+                                        )
+                                    }
+                                >
+                                    Delete Meeting
                                 </Button>
-                            </Link>
-                            <Button disabled={deleteMeeting.isPending} size='sm' variant='destructive' onClick={() => deleteMeeting.mutate({ meetingId: meeting.id }, {
-                                onSuccess: () => {
-                                    toast.success("Meeting deleted successfully")
-                                    refetch()
-                                }
-                            })}>
-                                Delete Meeting
-                            </Button>
-                            {/* <DeleteMeetingButton meetingId={meeting.id} /> */}
+                            </div>
+                            <div className="flex sm:hidden gap-x-2">
+                                <Link href={`/meetings/${meeting.id}`}>
+                                    <Button variant="ghost" size="icon">
+                                        <Eye className="h-4 w-4" />
+                                    </Button>
+                                </Link>
+                                <Button
+                                    disabled={deleteMeeting.isPending}
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() =>
+                                        deleteMeeting.mutate(
+                                            { meetingId: meeting.id },
+                                            {
+                                                onSuccess: () => {
+                                                    toast.success('Meeting deleted successfully')
+                                                    refetch()
+                                                },
+                                            }
+                                        )
+                                    }
+                                >
+                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                </Button>
+                            </div>
                         </div>
-
                     </li>
                 ))}
             </ul>
