@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield, BotMessageSquare, Bug, File, MessageSquareCode } from "lucide-react";
+import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield, BotMessageSquare, Bug, File, MessageSquareCode, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
@@ -13,8 +13,9 @@ import { toast } from "sonner";
 import { api } from "@/trpc/react";
 import useRefetch from "@/hooks/use-refetch";
 import ArchiveButton from "./dashboard/archive-button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { DialogTitle } from "@/components/ui/dialog";
 
-// Sidebar menu items and misc
 const items = [
     {
         title: "Dashboard",
@@ -73,24 +74,6 @@ const misc = [
     }
 ];
 
-// const legalItems = [
-//     {
-//         title: "About Theera",
-//         url: '/about',
-//         icon: Info
-//     },
-//     {
-//         title: "Terms and Conditions",
-//         url: '/terms',
-//         icon: FileText
-//     },
-//     {
-//         title: "Privacy Policy",
-//         url: '/privacy',
-//         icon: Shield
-//     }
-// ];
-
 export function AppSideBar() {
     const pathname = usePathname();
     const { open } = useSidebar();
@@ -99,6 +82,7 @@ export function AppSideBar() {
     const refetch = useRefetch()
     const archiveProject = api.project.archiveProject.useMutation()
     const [dropdownState, setDropdownState] = useState<Record<string, boolean>>({});
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleDropdown = (title: string) => {
         setDropdownState(prev => ({
@@ -122,7 +106,6 @@ export function AppSideBar() {
         }
     }
 
-    // State to track the open/closed state of each project's sub-menu
     const [openProjects, setOpenProjects] = useState<Record<string, boolean>>({});
 
     const toggleProjectMenu = (projectId: string) => {
@@ -136,6 +119,7 @@ export function AppSideBar() {
         setProjectId(projectId);
         toast.success(`Selected Project - ${projectName}`);
         router.push('/dashboard');
+        setIsMobileMenuOpen(false);
     };
 
     const deletion = api.project.deleteProject.useMutation();
@@ -158,20 +142,27 @@ export function AppSideBar() {
         }
     };
 
-    return (
-        <Sidebar collapsible="icon" variant="floating">
+    const SidebarContents = () => (
+        <>
             <SidebarHeader>
-                <div className="flex items-center gap-4">
-                    <div className="w-1"></div>
-                    {/* <Image src='/logo.svg' alt="logo" width={25} height={25} /> */}
-                    {open && (
-                        <h1  className="text-xl font-bold text-primary/80">Theera</h1>
-                    )}
+                <div className="flex items-center justify-between px-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-1"></div>
+                        {open && (
+                            <h1 className="text-xl font-bold text-primary/80">Theera</h1>
+                        )}
+                    </div>
+                    {/* <Sheet>
+                        <SheetTrigger asChild className="lg:hidden">
+                            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                            </Button>
+                        </SheetTrigger>
+                    </Sheet> */}
                 </div>
             </SidebarHeader>
 
             <SidebarContent>
-                {/* Application Group */}
                 <SidebarGroup>
                     <SidebarGroupLabel>Application</SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -184,7 +175,7 @@ export function AppSideBar() {
                                                 <Link href={item.url} className={cn({
                                                     'bg-primary text-white': pathname === item.url
                                                 }, 'list-none flex items-center gap-2')}>
-                                                    <item.icon />
+                                                    <item.icon className="h-4 w-4" />
                                                     <span>{item.title}</span>
                                                 </Link>
                                             </SidebarMenuButton>
@@ -193,10 +184,10 @@ export function AppSideBar() {
                                                     className="cursor-pointer"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        toggleDropdown(item.title); // Function to toggle dropdown state
+                                                        toggleDropdown(item.title);
                                                     }}
                                                 >
-                                                    {dropdownState[item.title] ? <ChevronUp /> : <ChevronDown />}
+                                                    {dropdownState[item.title] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                                 </div>
                                             )}
                                         </div>
@@ -209,7 +200,7 @@ export function AppSideBar() {
                                                         <Link href={subOption.url} className={cn({
                                                             'bg-primary text-white': pathname === subOption.url
                                                         }, 'list-none flex items-center gap-2')}>
-                                                            <subOption.icon />
+                                                            <subOption.icon className="h-4 w-4" />
                                                             <span>{subOption.title}</span>
                                                         </Link>
                                                     </SidebarMenuButton>
@@ -220,11 +211,9 @@ export function AppSideBar() {
                                 </div>
                             ))}
                         </SidebarMenu>
-
                     </SidebarGroupContent>
                 </SidebarGroup>
 
-                {/* Project Group */}
                 <SidebarGroup>
                     <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -236,7 +225,6 @@ export function AppSideBar() {
                             ) : (
                                 projects?.map((project) => (
                                     <div key={project.id}>
-                                        {/* Main Project Menu */}
                                         <SidebarMenuItem>
                                             <div className="flex items-center justify-between cursor-pointer px-2 py-1"
                                                 onClick={() => handleProjectSelection(project.id, project.name)}>
@@ -253,7 +241,6 @@ export function AppSideBar() {
                                                     </div>
                                                     <span className="ml-2">{project.name}</span>
                                                 </div>
-                                                {/* Arrow to toggle menu */}
                                                 <div
                                                     className="cursor-pointer"
                                                     onClick={(e) => {
@@ -262,11 +249,10 @@ export function AppSideBar() {
                                                         setProjectId(project.id)
                                                     }}
                                                 >
-                                                    {openProjects[project.id] ? <ChevronUp /> : <ChevronDown />}
+                                                    {openProjects[project.id] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                                                 </div>
                                             </div>
                                         </SidebarMenuItem>
-                                        {/* Sub-options - Collapsible Section */}
                                         {openProjects[project.id] && (
                                             <div className="pl-8 space-y-2 bg-gray-50 py-2">
                                                 <Button
@@ -277,7 +263,6 @@ export function AppSideBar() {
                                                 >
                                                     Delete
                                                 </Button>
-                                                {/* <ArchiveButton disabled={false} /> */}
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
@@ -305,7 +290,7 @@ export function AppSideBar() {
                                     <SidebarMenuItem>
                                         <Link href={'/create'}>
                                             <Button size='sm' variant={'outline'} className="w-fit">
-                                                <Plus />
+                                                <Plus className="h-4 w-4 mr-2" />
                                                 Create Project
                                             </Button>
                                         </Link>
@@ -318,7 +303,6 @@ export function AppSideBar() {
 
                 <div className="h-4"></div>
 
-                {/* Misc Group */}
                 <SidebarGroup>
                     <SidebarGroupLabel>Misc</SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -329,7 +313,7 @@ export function AppSideBar() {
                                         <Link href={miscItem.url} className={cn({
                                             'bg-primary text-white': pathname === miscItem.url
                                         }, 'list-none')}>
-                                            <miscItem.icon />
+                                            <miscItem.icon className="h-4 w-4" />
                                             <span>{miscItem.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -338,29 +322,38 @@ export function AppSideBar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
-                <div className="h-4"></div>
-
-                {/* Legal Group */}
-                {/* <SidebarGroup>
-                    <SidebarGroupLabel>Legal</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {legalItems.map(item => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={item.url} className={cn({
-                                            'bg-primary text-white': pathname === item.url
-                                        }, 'list-none')}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup> */}
             </SidebarContent>
-        </Sidebar>
+        </>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block">
+                <Sidebar collapsible="icon" variant="floating">
+                    <SidebarContents />
+                </Sidebar>
+            </div>
+
+            {/* Mobile Sidebar */}
+            <div className="lg:hidden">
+                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                    <SheetTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="fixed top-4 left-4 z-50"
+                            aria-label="Open menu"
+                        >
+                            <Menu className="h-6 w-6" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-[280px] p-0">
+                        <DialogTitle className="sr-only"></DialogTitle>
+                        <SidebarContents />
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </>
     );
 }
