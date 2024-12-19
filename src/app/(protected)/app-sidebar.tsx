@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield, BotMessageSquare, Bug } from "lucide-react";
+import { ArchiveRestore, Bot, CreditCard, LayoutDashboard, NotebookPen, Plus, Presentation, ChevronDown, ChevronUp, Github, PencilRuler, Info, FileText, Shield, BotMessageSquare, Bug, File, MessageSquareCode } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
@@ -20,6 +20,11 @@ const items = [
         title: "Dashboard",
         url: '/dashboard',
         icon: LayoutDashboard
+    },
+    {
+        title: "Documentation",
+        url: '/documentation',
+        icon: MessageSquareCode
     },
     {
         title: "Q&A",
@@ -157,9 +162,10 @@ export function AppSideBar() {
         <Sidebar collapsible="icon" variant="floating">
             <SidebarHeader>
                 <div className="flex items-center gap-4">
-                    <Image src='/logo.svg' alt="logo" width={35} height={35} />
+                    <div className="w-1"></div>
+                    {/* <Image src='/logo.svg' alt="logo" width={25} height={25} /> */}
                     {open && (
-                        <h1 className="text-xl font-bold text-primary/80">Theera</h1>
+                        <h1  className="text-xl font-bold text-primary/80">Theera</h1>
                     )}
                 </div>
             </SidebarHeader>

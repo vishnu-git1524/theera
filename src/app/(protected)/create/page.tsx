@@ -95,6 +95,19 @@ const CreatePage = () => {
                                     <p className="text-sm">You have <strong>{checkCredits.data?.userCredits}</strong> credits remaining </p>
                                 </div>
                             </>)}
+                        <div className="h-2"></div>
+                        <div className="bg-blue-50 px-4 py-2 rounded-md border border-blue-200 text-blue-700">
+                            <div className="flex items-center gap-2">
+                                <Info className="size-4" />
+                                <p className="text-sm">
+                                    To create a project with a private repository, you need to provide your GitHub token.
+                                </p>
+                            </div>
+                            <p className="text-sm">
+                                You can generate a personal access token in your GitHub account settings.
+                            </p>
+                        </div>
+
                         <div className="h-4"></div>
                         <Button disabled={createProject.isPending || checkCredits.isPending || !hasEnoughCredits} type='submit'>
                             {

@@ -128,7 +128,6 @@ export async function askAutocomplete(input: string) {
 
 export async function analyzeImage(file: File, model: any) {
   try {
-
     const reader = new FileReader();
     return new Promise<string>((resolve, reject) => {
       reader.onloadend = async () => {
@@ -142,10 +141,16 @@ export async function analyzeImage(file: File, model: any) {
                 mimeType: file.type || 'application/octet-stream',
               },
             },
-            `You are an intelligent senior software engineer with expertise in machine learning and computer vision. 
-           You are explaining to a junior software engineer the purpose and content of the image provided in the file.
-          ---
-          Please provide an analysis of the image based on the metadata above. Limit your response to no more than 100 words.`
+            `You are an intelligent senior software engineer with expertise in machine learning, computer vision, and technical documentation. 
+                      You have been provided an image file and tasked to analyze its content. The image is expected to contain technical diagrams, charts, architectural designs, code snippets, or any project-related visual information. 
+                      ---
+                      Please analyze the content of the image and provide the following:
+                      1. A summary of the image's purpose and technical content.
+                      2. Any technical details or metadata inferred from the image.
+                      3. Insights or recommendations relevant to software engineering or project development based on the image.
+                      ---
+                      Important: If the image content does not align with technical criteria (e.g., personal photos, non-technical artwork, etc.), respond with: "This image does not align with any technical criteria or project-related content." 
+                      Limit your response to no more than 150 words, ensuring it is concise, actionable, and relevant to a technical audience.`
           ]);
 
           resolve(response.response.text || 'No response text available.');
@@ -154,9 +159,164 @@ export async function analyzeImage(file: File, model: any) {
         }
       };
       reader.readAsDataURL(file);
-    })
-
+    });
   } catch (error) {
     throw error;
   }
 }
+
+
+
+export interface DocSection {
+  title: string;
+  content: string;
+}
+
+const sectionTitles = [
+  'Project Overview',
+  'Key Features',
+  'Technical Architecture',
+  'Setup Instructions',
+  'Development Guidelines',
+  'API Documentation',
+  'Security Considerations',
+  'Performance Optimization',
+  'Maintenance and Support',
+];
+
+const parseSections = (analysis: string): DocSection[] => {
+  const sections: DocSection[] = [];
+  let currentContent = analysis;
+
+  for (const title of sectionTitles) {
+    const regex = new RegExp(`${title}:?\\s*([\\s\\S]*?)(?=(?:${sectionTitles.join('|')})|$)`);
+    const match = currentContent.match(regex);
+
+    sections.push({
+      title,
+      content: match && match[1] ? match[1].trim() : 'Information not available in README',
+    });
+  }
+
+  return sections;
+};
+
+export const extractRepoInfo = (url: string) => {
+  const regex = /github\.com\/([^\/]+)\/([^\/]+)/;
+  const matches = url.match(regex);
+  if (!matches) throw new Error('Invalid GitHub URL');
+  return { owner: matches[1], repo: matches[2] };
+};
+
+export const fetchReadme = async (owner: string, repo: string): Promise<string> => {
+  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/readme`, {
+    headers: { Accept: 'application/vnd.github.v3.raw' },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch README');
+  }
+
+  return response.text();
+};
+
+export const analyzeRepository = async (readmeContent: string, repoName: string): Promise<DocSection[]> => {
+  const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY_ISSUES!);
+
+  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+  const prompt = `You are an expert software architect and technical documentation specialist with deep knowledge of modern software development practices, design patterns, and best practices.
+
+        You are analyzing a GitHub repository and creating comprehensive documentation. You have access to the following information:
+
+        Repository Name: ${repoName}
+
+        README Content:
+        ---
+        ${readmeContent}
+        ---
+
+        Please create an extensive and detailed documentation covering the following sections. For each section, provide in-depth analysis and concrete, actionable information:
+
+        1. Project Overview
+        - What problem does this project solve?
+        - Who is the target audience?
+        - What makes it unique?
+        - What is the project's current status and maturity level?
+
+        2. Key Features
+        - List and explain all major features
+        - Highlight unique selling points
+        - Describe the user experience
+        - Include potential use cases
+        - Suggest possible feature enhancements based on the project's direction
+
+        3. Technical Architecture
+        - Detailed breakdown of the technology stack
+        - System architecture and design patterns used
+        - Data flow and component interaction
+        - Infrastructure requirements
+        - Security considerations
+        - Performance optimization strategies
+        - Scalability approach
+
+        4. Setup Instructions
+        - Detailed prerequisites
+        - Step-by-step installation guide
+        - Configuration options
+        - Environment setup
+        - Deployment guidelines
+        - Common troubleshooting steps
+
+        5. Development Guidelines
+        - Code organization and structure
+        - Coding standards and best practices
+        - Testing strategy and requirements
+        - CI/CD pipeline recommendations
+        - Contributing guidelines
+        - Code review process
+        - Performance monitoring
+        - Error handling practices
+        - Documentation standards
+
+        6. API Documentation (if applicable)
+        - Authentication methods
+        - Available endpoints
+        - Request/response formats
+        - Rate limiting
+        - Error handling
+        - Example usage
+
+        7. Security Considerations
+        - Authentication and authorization
+        - Data protection measures
+        - Known security considerations
+        - Best practices for secure deployment
+
+        8. Performance Optimization
+        - Current performance metrics
+        - Optimization techniques
+        - Caching strategies
+        - Resource management
+
+        9. Maintenance and Support
+        - Update procedures
+        - Backup strategies
+        - Monitoring recommendations
+        - Support channels
+        - Issue reporting guidelines
+
+        For sections where information is not explicitly available in the README:
+        1. Analyze the repository structure, technologies used, and common patterns
+        2. Generate realistic and practical content based on industry best practices
+        3. Make informed suggestions based on the project's context and technology stack
+        4. Clearly mark generated content as "AI-Generated Recommendation" and explain the reasoning
+
+        Provide comprehensive information for each section while maintaining accuracy and practicality. When making assumptions or recommendations, explain the reasoning behind them.`;
+
+  const response = await model.generateContent(prompt);
+  const analysis = response.response.text();
+
+  return parseSections(analysis);
+};
+

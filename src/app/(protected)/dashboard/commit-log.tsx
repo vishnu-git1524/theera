@@ -22,10 +22,10 @@ const CommitLog = () => {
                     <h2 className="text-xl font-semibold text-gray-700">AI Commit Insights 🤖</h2>
                 </div>
                 {/* Refresh button */}
-                <button 
+                <button
                     className="p-2 rounded-md hover:bg-gray-100 focus:outline-none"
-                    onClick={() => refetch().then(()=>  toast.success("Fetched..."))}  
-                    // Refresh commits data when clicked
+                    onClick={() => refetch().then(() => toast.success("Fetched..."))}
+                // Refresh commits data when clicked
                 >
                     <RefreshCw className="h-6 w-6 text-gray-600" />
                 </button>

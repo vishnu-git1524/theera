@@ -131,63 +131,54 @@ const Analyze = () => {
 };
 
 const SavedAnalysisPage = () => {
-  const { projectId, project } = useProject();
+  const { projectId } = useProject();
   const { data: analyses, isLoading } = api.project.getAnalysis.useQuery({ projectId });
-  // const deleteAnalysis = api.project.deleteAnalysis.useMutation();
-  const refetch = useRefetch();
   const [selectedAnalysisIndex, setSelectedAnalysisIndex] = useState<number | null>(null);
-  const selectedAnalysis = analyses?.[selectedAnalysisIndex || 0];
+  const selectedAnalysis = selectedAnalysisIndex !== null ? analyses?.[selectedAnalysisIndex] : null;
 
   return (
     <Sheet>
-      <div className="h-2"></div>
-      <h1 className="text-xl font-semibold">Saved Analyses</h1>
-      <div className="h-2"></div>
+      <div className="my-4">
+        <h1 className="text-2xl font-bold text-gray-900">Saved Analyses</h1>
+      </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-24">
-          <div className="flex justify-center items-center h-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-          </div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {analyses?.map((analysis, index) => (
-            <React.Fragment key={analysis.id}>
-              <SheetTrigger onClick={() => setSelectedAnalysisIndex(index)}>
-                <div className="flex items-center justify-between bg-white rounded-lg p-4 shadow border">
-                  <div className="flex flex-col space-y-1">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <p className="font-medium">ID: <span className="font-normal">{analysis.id}</span></p>
-                      <span className="text-xs text-gray-400">{analysis.createdAt.toLocaleDateString()}</span>
+            <SheetTrigger
+              key={analysis.id}
+              asChild
+              onClick={() => setSelectedAnalysisIndex(index)}
+            >
+              <div className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all cursor-pointer">
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">Analysis ID</h3>
+                      <p className="text-sm text-gray-600">{analysis.id}</p>
                     </div>
-                    <div className="text-sm text-gray-700">
-                      <p className="font-medium">Saved By:</p>
-                      <p className="text-gray-600">{analysis.user.firstName}</p>
-                    </div>
+                    <span className="text-xs text-gray-400">
+                      {new Date(analysis.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
-                  <span className="ml-auto flex items-center text-gray-400">
-                    <TrashIcon
-                      // onClick={(e) => {
-                      //   e.stopPropagation();
-                      //   const confirm = window.confirm('Are you sure you want to delete this analysis?');
-                      //   if (!confirm) return;
-                      //   toast.promise(deleteAnalysis.mutateAsync({ analysisId: analysis.id }), {
-                      //     loading: 'Deleting...',
-                      //     error: 'Failed to delete analysis',
-                      //     success: () => {
-                      //       refetch();
-                      //       return 'Deleted!';
-                      //     },
-                      //   });
-                      // }}
-                      className="h-5 w-5 text-red-600"
-                    />
-                  </span>
-                </div>
 
-              </SheetTrigger>
-            </React.Fragment>
+                  <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-gray-800">Saved By</h4>
+                    <p className="text-sm text-gray-600">{analysis.user.firstName}</p>
+                  </div>
+
+                  <div className="mt-4 flex justify-between items-center">
+                    <Button variant={'outline'} size="sm" className="">
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </SheetTrigger>
           ))}
         </div>
       )}
@@ -195,7 +186,7 @@ const SavedAnalysisPage = () => {
       {selectedAnalysis && (
         <SheetContent className="sm:max-w-[80vw] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Analysis</SheetTitle>
+            <SheetTitle>Analysis Details</SheetTitle>
             <MDEditor.Markdown source={selectedAnalysis.answer || "No content available."} />
           </SheetHeader>
         </SheetContent>
@@ -203,5 +194,6 @@ const SavedAnalysisPage = () => {
     </Sheet>
   );
 };
+
 
 export default Analyze;

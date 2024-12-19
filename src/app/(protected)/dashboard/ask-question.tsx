@@ -14,6 +14,7 @@ import CodeReferences from './code-references'
 import { api } from '@/trpc/react'
 import { toast } from 'sonner'
 import useRefetch from '@/hooks/use-refetch'
+import { Loader2 } from 'lucide-react'
 
 const AskQuestionCard = () => {
     const { projectId, project } = useProject()
@@ -98,6 +99,7 @@ const AskQuestionCard = () => {
                         <div className='h-4'></div>
                         <Button type='submit' disabled={loading || !project}>
                             Ask Theera!
+                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         </Button>
                     </form>
                 </CardContent>
